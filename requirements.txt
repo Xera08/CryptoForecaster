@@ -1,0 +1,7 @@
+Flask
+yfinance
+matplotlib
+pandas
+numpy
+tensorflow     # або keras, якщо використовуєш Keras API
+scikit-learn    # для масштабування даних (MinMaxScaler)
