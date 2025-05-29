@@ -7,6 +7,9 @@ import yfinance as yf
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from sklearn.metrics import mean_absolute_error
+
+
 
 app = Flask(__name__)
 
@@ -30,10 +33,10 @@ def index():
     plt.close()
 
     # 2. LSTM-прогноз
-    forecast_b64 = get_forecast_graph(days_ahead=30)
+    _, lstm_dates, lstm_prices, lstm_mae = get_forecast_graph(days_ahead=7)
 
     # 3. Прогноз із backpropagation
-    backprop_b64 = generate_backprop_forecast_plot()
+    backprop_dates, backprop_prices, backprop_mae = generate_backprop_forecast_plot()
 
     # Prepare dates for chart.js or template
     if ('Close', 'BTC-USD') not in df.columns or df.empty:
@@ -43,17 +46,21 @@ def index():
         dates = df.index.strftime('%Y-%m-%d').tolist()
         prices = df[('Close', 'BTC-USD')].tolist()
 
-    backprop_dates, backprop_prices = generate_backprop_forecast_plot()
 
     
 
-    return render_template('index.html',
-                           hist_graph=hist_b64,
-                           forecast_graph=forecast_b64,
-                           dates=dates,
-                           prices=prices,
-                           backprop_dates=[d.strftime('%Y-%m-%d') for d in backprop_dates],
-                           backprop_prices=backprop_prices)
+    return render_template(
+        'index.html',
+        hist_graph=hist_b64,
+        lstm_dates=lstm_dates,
+        lstm_prices=lstm_prices,
+        dates=dates,
+        prices=prices,
+        backprop_dates=[d.strftime('%Y-%m-%d') for d in backprop_dates],
+        backprop_prices=backprop_prices,
+        lstm_mae=lstm_mae,
+        backprop_mae=backprop_mae
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)

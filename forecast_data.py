@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
+from sklearn.metrics import mean_absolute_error
+
+
 
 def get_forecast_graph(days_ahead=30):
     # 1) Завантажуємо історію за останні 2 роки
@@ -38,20 +41,21 @@ def get_forecast_graph(days_ahead=30):
     model.compile(optimizer='adam', loss='mse')
     model.fit(X, y, epochs=5, batch_size=32, verbose=0)
 
-    # 5) Прогнозуємо наступні days_ahead днів
-    last_window = scaled[-window:]
+    # 5) Прогнозуємо останні days_ahead днів для backtest
+    test_actual = df['Close'].values[-days_ahead:]
+    test_scaled = scaled[-(window + days_ahead):]
     preds = []
-    current = last_window.copy()
-    for _ in range(days_ahead):
+    current = test_scaled[:window].copy()
+    for i in range(days_ahead):
         inp = current[-window:].reshape(1, window, 1)
-        pred = model.predict(inp)[0, 0]
+        pred = model.predict(inp, verbose=0)[0, 0]
         preds.append(pred)
-        current = np.vstack([current, [[pred]]])
-
-    # Перетворюємо назад у реальні ціни
+        current = np.vstack([current, [[test_scaled[window + i][0]]]])  # use actual next value for backtest
+    
     preds = scaler.inverse_transform(np.array(preds).reshape(-1, 1)).flatten()
+    mae = mean_absolute_error(test_actual, preds)
     future_dates = pd.date_range(df.index[-1] + pd.Timedelta(days=1), periods=days_ahead)
-
+    
     # 6) Малюємо графік
     plt.figure(figsize=(8,4))
     # реальні останні 60 днів
@@ -72,4 +76,4 @@ def get_forecast_graph(days_ahead=30):
     buf.close()
     plt.close()
 
-    return img_b64
+    return preds, [d.strftime('%Y-%m-%d') for d in future_dates], preds.tolist(), mae

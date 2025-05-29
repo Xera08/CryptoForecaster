@@ -7,6 +7,8 @@ from sklearn.preprocessing import MinMaxScaler
 import datetime
 import io
 import base64
+from sklearn.metrics import mean_absolute_error
+
 
 def generate_backprop_forecast_plot():
     # 1. Завантаження даних
@@ -89,5 +91,7 @@ def generate_backprop_forecast_plot():
     plt.legend()
     plt.tight_layout()
 
+    actual = df['Close'].values[-7:]  # last 7 actual prices
 
-    return future_dates, predicted.tolist()
+    mae = mean_absolute_error(actual, predicted)
+    return future_dates, predicted.tolist(), mae

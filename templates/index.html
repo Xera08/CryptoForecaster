@@ -8,17 +8,36 @@
 </head>
 
 <body class="bg-light">
+
     <div class="container mt-5">
         <h2 class="text-center mb-4">Ціна біткоїна за останній рік</h2>
         <canvas id="btcChart" height="100"></canvas>
     </div>
 
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">LSTM прогнозування ціни біткоїна на наступні 7 днів</h2>
+        <canvas id="lstmChart" height="100"></canvas>
+        <div class="text-center mt-2">
+            <strong>Середня абсолютна помилка (LSTM MAE):</strong> {{ lstm_mae | round(2) }}
+        </div>
+    </div>
+
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Back propagation прогнозування ціни біткоїна на наступні 7 днів</h2>
+        <canvas id="backpropChart" height="100"></canvas>
+        <div class="text-center mt-2">
+            <strong>Середня абсолютна помилка (Backpropagation MAE):</strong> {{ backprop_mae | round(2) }}
+        </div>
+    </div>
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Historical chart -->
-<canvas id="historicalChart">
-<script>
+    <script>
+
+        // History Chart
         const ctx = document.getElementById('btcChart').getContext('2d');
         const chart = new Chart(ctx, {
             type: 'line',
@@ -26,8 +45,8 @@
                 labels: {{ dates | tojson }},
         datasets: [
             {
-            label: 'BTC Close Price',
-            data: {{ prices | tojson }},
+                label: 'BTC Close Price',
+                data: {{ prices | tojson }},
             borderColor: 'blue',
             fill: false
         }]
@@ -49,40 +68,46 @@
             }
         }
         });
-    </script>
 
-</canvas>
-
-        <h2 class="text-center mb-4">Прогнозування ціни біткоїна на наступні сім днів</h2>
-        <canvas id="btcChart" height="100"></canvas>
-    </div>
-<!-- Forecast chart -->
-<canvas id="forecastChart">
-<script>
-const forecastCtx = document.getElementById('forecastChart').getContext('2d');
-const forecastChart = new Chart(forecastCtx, {
-    type: 'line',
-    data: {
-        labels: {{ backprop_dates | tojson }},
+        // LSTM chart
+        const lstmForecastCtx = document.getElementById('lstmChart').getContext('2d');
+        const lstmForecastChart = new Chart(lstmForecastCtx, {
+            type: 'line',
+            data: {
+                labels: {{ lstm_dates | tojson }},
         datasets: [{
-            label: 'Backprop Forecast',
+            label: 'LSTM Forecast',
+            data: {{ lstm_prices | tojson }},
+            borderColor: 'red',
+            fill: false
+                }]
+            },
+    
+    });
+
+        // Backpropagation chart
+        const backpropForecastCtx = document.getElementById('backpropChart').getContext('2d');
+        const backpropForecastChart = new Chart(backpropForecastCtx, {
+            type: 'line',
+            data: {
+                labels: {{ backprop_dates | tojson }},
+        datasets: [{
+            label: 'Backpropagation Forecast',
             data: {{ backprop_prices | tojson }},
             borderColor: 'red',
             fill: false
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { display: true }
+                }]
+            },
+        options: {
+            responsive: true,
+                plugins: {
+                legend: { display: true }
+            }
         }
-    }
-});
-</script>
+        });
+    </script>
 
-</canvas>
 
-    
 </body>
 
 </html>
