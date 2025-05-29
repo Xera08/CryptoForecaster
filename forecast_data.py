@@ -1,8 +1,5 @@
-# forecast_data.py
-
 import io
 import base64
-
 import numpy as np
 import pandas as pd
 import yfinance as yf
