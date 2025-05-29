@@ -68,7 +68,7 @@ def generate_backprop_forecast_plot():
         W1 -= lr * dW1
         b1 -= lr * db1
 
-    # 7. Прогнозування
+    # алгоритм прогнозування
     last_seq = data_scaled[-window:].flatten().reshape(1, -1)
     z1 = last_seq @ W1 + b1
     a1 = relu(z1)
@@ -76,7 +76,7 @@ def generate_backprop_forecast_plot():
     pred_scaled = z2.flatten()
     predicted = scaler.inverse_transform(pred_scaled.reshape(-1, 1)).flatten()
 
-    # 8. Побудова графіка
+    # графік
     last_date = df.index[-1]
     future_dates = [last_date + datetime.timedelta(days=i) for i in range(1, 8)]
 
@@ -89,12 +89,5 @@ def generate_backprop_forecast_plot():
     plt.legend()
     plt.tight_layout()
 
-    # 9. Перетворення в base64
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    img_b64 = base64.b64encode(buf.read()).decode('ascii')
-    buf.close()
-    plt.close()
 
-    return img_b64
+    return future_dates, predicted.tolist()

@@ -1,49 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Графік ціни біткоїна</title>
+    <title>Прогноз ціни біткоїна</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
     <div class="container mt-5">
         <h2 class="text-center mb-4">Ціна біткоїна за останній рік</h2>
         <canvas id="btcChart" height="100"></canvas>
     </div>
 
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
+
+    <!-- Historical chart -->
+<canvas id="historicalChart">
+<script>
         const ctx = document.getElementById('btcChart').getContext('2d');
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: {{ dates | tojson }},
-                datasets: [{
-                    label: 'Ціна BTC (USD)',
-                    data: {{ prices | tojson }},
-                    borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    fill: true,
-                    tension: 0.2
-                }]
-            },
-            options: {
-                responsive: true,
+        datasets: [
+            {
+            label: 'BTC Close Price',
+            data: {{ prices | tojson }},
+            borderColor: 'blue',
+            fill: false
+        }]
+        },
+        options: {
+            responsive: true,
                 plugins: {
-                    legend: { position: 'bottom' }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
+                legend: { position: 'bottom' }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
                         title: { display: true, text: 'USD' }
-                    },
-                    x: {
-                        ticks: { maxTicksLimit: 12 },
-                        title: { display: true, text: 'Дата' }
-                    }
+                },
+                x: {
+                    ticks: { maxTicksLimit: 12 },
+                    title: { display: true, text: 'Дата' }
                 }
             }
+        }
         });
     </script>
+
+</canvas>
+
+        <h2 class="text-center mb-4">Прогнозування ціни біткоїна на наступні сім днів</h2>
+        <canvas id="btcChart" height="100"></canvas>
+    </div>
+<!-- Forecast chart -->
+<canvas id="forecastChart">
+<script>
+const forecastCtx = document.getElementById('forecastChart').getContext('2d');
+const forecastChart = new Chart(forecastCtx, {
+    type: 'line',
+    data: {
+        labels: {{ backprop_dates | tojson }},
+        datasets: [{
+            label: 'Backprop Forecast',
+            data: {{ backprop_prices | tojson }},
+            borderColor: 'red',
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: true }
+        }
+    }
+});
+</script>
+
+</canvas>
+
+    
 </body>
+
 </html>
